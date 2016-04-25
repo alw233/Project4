@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -23,6 +24,23 @@ public class MapReduceMain extends Configured implements Tool {
 		JobConf conf = new JobConf(MapReduceMain.class);
 		//DistributedCache.addCacheFile(new File("/Users/angelayang316/Downloads/Dataset.txt").toURI(), conf);
 		conf.set("column", args[0]);
+		
+		if (args.length > 1) {
+			ArrayList<String> searchCriteria = new ArrayList<String>();
+			for (int i = 1; i < args.length; i++)
+			{
+				searchCriteria.add(args[i]);
+			}
+			
+			String[] arr = searchCriteria.toArray(new String[searchCriteria.size()]);
+			conf.setStrings("criteria", arr);
+		}
+		else {
+			String[] arr = {"none"};
+			conf.setStrings("criteria", arr);
+		}
+
+		
 		conf.setJobName("mapreduce");
 		conf.setJarByClass(MapReduceMain.class);
 		conf.setMapperClass(MapClass.class);

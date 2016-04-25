@@ -14,6 +14,8 @@ import org.apache.hadoop.mapreduce.filecache.DistributedCache;
 
 public class Reduce extends MapReduceBase implements Reducer<Text, Text, Text, Text> {
 	
+	String[] searchCriteria;
+	
 	public void reduce(Text key, Iterator<Text> values,
 			OutputCollector<Text, Text> output, Reporter reporter) throws IOException {
 		String outputValue = "";
@@ -21,7 +23,21 @@ public class Reduce extends MapReduceBase implements Reducer<Text, Text, Text, T
 			outputValue += " ";
 			outputValue += values.next().toString();
 		}
-		output.collect(key, new Text(outputValue));
+		
+		if (searchCriteria[0].matches("none")) {
+			output.collect(key,  new Text(outputValue));
+		}
+		else {
+			for (int i = 0; i < searchCriteria.length; i++) {
+				if (searchCriteria[i].matches(key.toString())) {
+					output.collect(key, new Text(outputValue));
+					break;
+				}
+				else {
+					System.out.println(key.toString() + " is not " + searchCriteria[i]);
+				}
+			}
+		}
 	}
 
 	public void configure(JobConf job) {
@@ -30,6 +46,8 @@ public class Reduce extends MapReduceBase implements Reducer<Text, Text, Text, T
 		} catch (IOException e) {
 			e.printStackTrace();
 		}*/
+		
+		searchCriteria = job.getStrings("criteria");
 	}
 
 }
